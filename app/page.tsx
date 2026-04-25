@@ -14,7 +14,12 @@ export default function Home() {
 
   async function handleLogin() {
     setLoading(true)
-    await supabase.auth.signInWithOtp({ email })
+    await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: 'https://sociallens-tawny.vercel.app/auth/callback'
+      }
+    })
     setSent(true)
     setLoading(false)
   }
