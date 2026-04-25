@@ -7,30 +7,39 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
-export default function Home() {
-  const [email, setEmail] = useState('')
-  const [sent, setSent] = useState(false)
-  const [loading, setLoading] = useState(false)
+export default function Dashboard() {
+  const [userEmail, setUserEmail] = useState('')
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        window.location.href = '/dashboard'
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        window.location.href = '/'
+      } else {
+        setUserEmail(session.user.email || '')
+        setLoading(false)
       }
     })
   }, [])
 
-  async function handleLogin() {
-    setLoading(true)
-    await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: 'https://sociallens-tawny.vercel.app/dashboard'
-      }
-    })
-    setSent(true)
-    setLoading(false)
+  async function handleLogout() {
+    await supabase.auth.signOut()
+    window.location.href = '/'
   }
+
+  if (loading) return (
+    <div style={{
+      background: '#0A0D14',
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: '#F0F2FF',
+      fontFamily: 'Tajawal, sans-serif'
+    }}>
+      جاري التحميل...
+    </div>
+  )
 
   return (
     <div style={{
@@ -38,79 +47,50 @@ export default function Home() {
       background: '#0A0D14',
       color: '#F0F2FF',
       minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
+      padding: '40px',
       direction: 'rtl'
     }}>
       <div style={{
-        background: '#111520',
-        border: '1px solid rgba(255,255,255,0.07)',
-        borderRadius: '24px',
-        padding: '48px',
-        width: '400px',
-        textAlign: 'center'
+        maxWidth: '800px',
+        margin: '0 auto'
       }}>
-        <div style={{fontSize: '2.5rem', marginBottom: '16px'}}>🔍</div>
-        <h1 style={{fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px'}}>SocialLens</h1>
-        <p style={{color: 'rgba(240,242,255,0.5)', marginBottom: '32px'}}>
-          سجل دخولك لتحليل أكاونتاتك
-        </p>
-
-        {!sent ? (
-          <>
-            <input
-              type="email"
-              placeholder="أدخل إيميلك"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '14px 16px',
-                borderRadius: '12px',
-                border: '1px solid rgba(255,255,255,0.1)',
-                background: 'rgba(255,255,255,0.05)',
-                color: '#F0F2FF',
-                fontSize: '1rem',
-                marginBottom: '16px',
-                outline: 'none',
-                direction: 'ltr',
-                textAlign: 'left'
-              }}
-            />
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '40px'
+        }}>
+          <h1 style={{fontSize: '1.8rem', fontWeight: 900}}>🔍 SocialLens</h1>
+          <div style={{display: 'flex', alignItems: 'center', gap: '16px'}}>
+            <span style={{color: 'rgba(240,242,255,0.5)', fontSize: '0.9rem'}}>{userEmail}</span>
             <button
-              onClick={handleLogin}
-              disabled={loading || !email}
+              onClick={handleLogout}
               style={{
-                width: '100%',
-                padding: '14px',
-                borderRadius: '12px',
-                border: 'none',
-                background: 'linear-gradient(135deg, #6C63FF, #8B5CF6)',
-                color: 'white',
-                fontSize: '1rem',
-                fontWeight: 700,
+                padding: '8px 16px',
+                borderRadius: '8px',
+                border: '1px solid rgba(255,255,255,0.1)',
+                background: 'transparent',
+                color: '#F0F2FF',
                 cursor: 'pointer',
                 fontFamily: 'Tajawal, sans-serif'
               }}
             >
-              {loading ? 'جاري الإرسال...' : '🚀 ابدأ — ادخل برابط على إيميلك'}
+              خروج
             </button>
-          </>
-        ) : (
-          <div style={{
-            background: 'rgba(0,212,170,0.1)',
-            border: '1px solid rgba(0,212,170,0.3)',
-            borderRadius: '16px',
-            padding: '24px'
-          }}>
-            <div style={{fontSize: '2rem', marginBottom: '12px'}}>📧</div>
-            <p style={{fontWeight: 700, marginBottom: '8px'}}>تم الإرسال!</p>
-            <p style={{color: 'rgba(240,242,255,0.6)', fontSize: '0.9rem'}}>
-              افتح إيميلك واضغط على الرابط عشان تدخل
-            </p>
           </div>
-        )}
+        </div>
+
+        <div style={{
+          background: '#111520',
+          border: '1px solid rgba(255,255,255,0.07)',
+          borderRadius: '24px',
+          padding: '48px',
+          textAlign: 'center'
+        }}>
+          <div style={{fontSize: '3rem', marginBottom: '16px'}}>🎉</div>
+          <h2 style={{fontSize: '1.5rem', fontWeight: 700, marginBottom: '8px'}}>أهلاً بيك!</h2>
+          <p style={{color: 'rgba(240,242,255,0.5)'}}>الداشبورد شغال تمام</p>
+        </div>
       </div>
     </div>
   )
