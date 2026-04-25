@@ -10,6 +10,8 @@ const supabase = createClient(
 export default function Dashboard() {
   const [userEmail, setUserEmail] = useState('')
   const [loading, setLoading] = useState(true)
+  const [fbConnected, setFbConnected] = useState(false)
+  const [fbData, setFbData] = useState<any>(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -21,6 +23,13 @@ export default function Dashboard() {
       }
     })
   }, [])
+
+  function connectFacebook() {
+    const appId = process.env.NEXT_PUBLIC_META_APP_ID
+    const redirectUri = encodeURIComponent('https://sociallens-tawny.vercel.app/dashboard')
+    const scope = encodeURIComponent('instagram_basic,instagram_manage_insights,pages_show_list,pages_read_engagement')
+    window.location.href = `https://www.facebook.com/dialog/oauth?client_id=${appId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code`
+  }
 
   async function handleLogout() {
     await supabase.auth.signOut()
@@ -50,10 +59,7 @@ export default function Dashboard() {
       padding: '40px',
       direction: 'rtl'
     }}>
-      <div style={{
-        maxWidth: '800px',
-        margin: '0 auto'
-      }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -63,18 +69,15 @@ export default function Dashboard() {
           <h1 style={{fontSize: '1.8rem', fontWeight: 900}}>🔍 SocialLens</h1>
           <div style={{display: 'flex', alignItems: 'center', gap: '16px'}}>
             <span style={{color: 'rgba(240,242,255,0.5)', fontSize: '0.9rem'}}>{userEmail}</span>
-            <button
-              onClick={handleLogout}
-              style={{
-                padding: '8px 16px',
-                borderRadius: '8px',
-                border: '1px solid rgba(255,255,255,0.1)',
-                background: 'transparent',
-                color: '#F0F2FF',
-                cursor: 'pointer',
-                fontFamily: 'Tajawal, sans-serif'
-              }}
-            >
+            <button onClick={handleLogout} style={{
+              padding: '8px 16px',
+              borderRadius: '8px',
+              border: '1px solid rgba(255,255,255,0.1)',
+              background: 'transparent',
+              color: '#F0F2FF',
+              cursor: 'pointer',
+              fontFamily: 'Tajawal, sans-serif'
+            }}>
               خروج
             </button>
           </div>
@@ -84,12 +87,38 @@ export default function Dashboard() {
           background: '#111520',
           border: '1px solid rgba(255,255,255,0.07)',
           borderRadius: '24px',
-          padding: '48px',
+          padding: '32px',
+          marginBottom: '24px'
+        }}>
+          <h2 style={{fontSize: '1.2rem', fontWeight: 700, marginBottom: '16px'}}>ربط الحسابات</h2>
+          <button onClick={connectFacebook} style={{
+            padding: '14px 24px',
+            borderRadius: '12px',
+            border: 'none',
+            background: '#1877F2',
+            color: 'white',
+            fontSize: '1rem',
+            fontWeight: 700,
+            cursor: 'pointer',
+            fontFamily: 'Tajawal, sans-serif',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            📘 ربط Facebook & Instagram
+          </button>
+        </div>
+
+        <div style={{
+          background: '#111520',
+          border: '1px solid rgba(255,255,255,0.07)',
+          borderRadius: '24px',
+          padding: '32px',
           textAlign: 'center'
         }}>
-          <div style={{fontSize: '3rem', marginBottom: '16px'}}>🎉</div>
-          <h2 style={{fontSize: '1.5rem', fontWeight: 700, marginBottom: '8px'}}>أهلاً بيك!</h2>
-          <p style={{color: 'rgba(240,242,255,0.5)'}}>الداشبورد شغال تمام</p>
+          <p style={{color: 'rgba(240,242,255,0.5)'}}>
+            اربط حسابك عشان تشوف التحليلات هنا
+          </p>
         </div>
       </div>
     </div>
