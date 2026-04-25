@@ -11,7 +11,7 @@ export default function Home() {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: 'https://sociallens-tawny.vercel.app/auth/callback'
+        redirectTo: 'https://sociallens-tawny.vercel.app/dashboard'
       }
     })
   }
